@@ -18,26 +18,17 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
 
-    apply plugin: 'com.jfrog.bintray'
-
     ext.publish = true
 
-    bintray {
-        user = bintray_user
-        key = bintray_api_key
-        configurations = ['archives']
-        dryRun = false // Whether to run this as dry-run, without deploying
-        publish = true //If version should be auto published after an upload
-        pkg {
-            repo = 'maven'
-            name = 'chillenious-commons'
-            desc = 'Little bag of tools for Guice based projects'
-            websiteUrl = 'https://github.com/chillenious/commons'
-            issueTrackerUrl = 'https://github.com/chillenious/commons/issues'
-            vcsUrl = 'https://github.com/chillenious/commons.git'
-            licenses = ['MIT']
-            labels = ['Guice', 'Java', 'jOOQ', 'bibliolabs', 'onespot']
-            publicDownloadNumbers = true
+    publishing {
+        repositories {
+            maven {
+                url "${artifactory_contextUrl}/libs-release-local"
+                credentials {
+                    username = artifactory_user
+                    password = artifactory_password
+                }
+            }
         }
     }
 }
@@ -64,7 +55,15 @@ subprojects {
         archives
     }
 
-    artifacts {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+        artifacts {
         archives sourceJar
     }
 
@@ -93,7 +92,7 @@ subprojects {
 
 // http://www.gradle.org/docs/current/userguide/gradle_wrapper.html
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.1'
+    gradleVersion = '3.5'
 }
 
 idea.project.ipr {

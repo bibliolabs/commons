@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Beefed up properties that in addition to being a key/ value store, can deal with a few type conversions,
@@ -157,7 +158,9 @@ public final class Settings implements Serializable {
         }
         // process any environment variables we can match with settings
         Properties p = new Properties();
+
         p.putAll(System.getProperties());
+
         substituteVariables(p);
         for (Map.Entry<Object, Object> entry : p.entrySet()) {
             Object current = properties.get(entry.getKey());
@@ -169,6 +172,25 @@ public final class Settings implements Serializable {
                 properties.put(entry.getKey(), entry.getValue());
             }
         }
+
+        //-- Look for Overriding OS Environment Variables
+        properties.stringPropertyNames().forEach(key -> {
+            String envValue = System.getenv(normalizeKey(key));
+            log.info("--> Environment Value for Key [{}] : [{}]", key, envValue);
+            if (envValue != null) {
+                log.info(String.format(
+                      "override setting '%s' with value '%s' from system properties (previous value was '%s')",
+                      key, envValue, properties.getProperty(key)));
+                properties.put(key, envValue);
+            }
+        });
+
+    }
+
+    private String normalizeKey(final String key) {
+        String newKey = key.replace('.', '_').toUpperCase().replace("-", "");
+        log.info("########## Normalizing Key : [{}] -> [{}]", key, newKey);
+        return newKey;
     }
 
     /**
