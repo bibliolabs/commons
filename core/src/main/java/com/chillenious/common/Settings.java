@@ -176,7 +176,6 @@ public final class Settings implements Serializable {
         //-- Look for Overriding OS Environment Variables
         properties.stringPropertyNames().forEach(key -> {
             String envValue = System.getenv(normalizeKey(key));
-            log.info("--> Environment Value for Key [{}] : [{}]", key, envValue);
             if (envValue != null) {
                 log.info(String.format(
                       "override setting '%s' with value '%s' from system properties (previous value was '%s')",
@@ -188,9 +187,7 @@ public final class Settings implements Serializable {
     }
 
     private String normalizeKey(final String key) {
-        String newKey = key.replace('.', '_').toUpperCase().replace("-", "");
-        log.info("########## Normalizing Key : [{}] -> [{}]", key, newKey);
-        return newKey;
+        return key.replace('.', '_').toUpperCase().replace("-", "");
     }
 
     /**
