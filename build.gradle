@@ -3,10 +3,6 @@ buildscript {
     repositories {
         jcenter()
     }
-
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7"
-    }
 }
 
 allprojects {
@@ -18,15 +14,14 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'idea'
 
-    ext.publish = true
 
     publishing {
         repositories {
             maven {
-                url "${artifactory_contextUrl}/libs-release-local"
-                credentials {
-                    username = artifactory_user
-                    password = artifactory_password
+                url "s3://bibliolabs-repository/ext-release-local"
+                credentials(AwsCredentials) {
+                    accessKey repository_user
+                    secretKey repository_password
                 }
             }
         }
@@ -46,7 +41,7 @@ subprojects {
         }
     }
 
-    task sourceJar(type: Jar) {
+    task sourcesJar(type: Jar) {
         from sourceSets.main.allSource
         classifier = 'sources'
     }
@@ -59,12 +54,15 @@ subprojects {
         publications {
             mavenJava(MavenPublication) {
                 from components.java
+                artifact sourcesJar {
+                    classifier "sources"
+                }
             }
         }
     }
 
-        artifacts {
-        archives sourceJar
+    artifacts {
+        archives sourcesJar
     }
 
     repositories {
