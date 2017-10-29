@@ -174,7 +174,7 @@ public class JooqModule extends AbstractModule {
         public DataSource get() {
             return qualifier == null ?
                     dataSources.getDataSource("dataSource") :
-                    dataSources.getDataSource(qualifier.value() + "DataSource");
+                    dataSources.getDataSource(qualifier.value());
         }
     }
 
